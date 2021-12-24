@@ -108,9 +108,14 @@ void Model::Sort()
 void Model::CalculateAmbientLighting(AmbientLighting ambient)
 {
 	int index = 0;
+	float tempR = 0, tempG = 0, tempB = 0;
 	for (Polygon3D poly : _polygons)
 	{
-
+		_polygons[index].SetColour(0, 0, 0);
+		tempR = ambient.GetColour(0) * ka_red;
+		tempG = ambient.GetColour(1) * ka_green;
+		tempB = ambient.GetColour(2) * ka_blue;
+		_polygons[index].SetColour(tempR, tempG, tempB);
 		index++;
 	}
 }

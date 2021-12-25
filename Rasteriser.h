@@ -4,6 +4,7 @@
 #include "Matrix.h"
 #include "MD2Loader.h"
 #include "Camera.h"
+#include "AmbientLighting.h"
 #include "DirectionalLighting.h"
 #include <vector>
 
@@ -52,5 +53,6 @@ private:
 	float _yRot{ 0 };
 	float _zRot{ 0 };
 	vector<DirectionalLighting> dirLighting;
+	AmbientLighting ambient;
 };
 

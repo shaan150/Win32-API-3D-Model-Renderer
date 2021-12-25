@@ -27,9 +27,10 @@ bool Rasteriser::Initialise()
 	_camX = 0.0f;
 	_camY = 0.0f;
 	_camZ = 0.0f;
-	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -50.0f));
+	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -150.0f));
+	ambient.SetColour(10, 10, 100);
 	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 1.0f), 0, 10, 5));
-	if (!MD2Loader::LoadModel("chef.md2", _model,
+	if (!MD2Loader::LoadModel("marvin.md2", _model,
 		&Model::AddPolygon,
 		&Model::AddVertex))
 	{
@@ -186,6 +187,7 @@ void Rasteriser::Render(const Bitmap& bitmap)
 {
 	_model.ApplyTransformToLocalVertices(_modelTransfromation);
 	_model.CalculateBackfaces(_cam.GetPos());
+	_model.CalculateAmbientLighting(ambient);
 	_model.CalculateLightingDirectional(dirLighting);
 	_model.Sort();
 	_model.ApplyTransformToTransformedVertices(_cam.getTransformation());

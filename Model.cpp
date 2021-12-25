@@ -101,7 +101,7 @@ void Model::Sort()
 		_polygons.end(),
 		[](const Polygon3D& lhs, const Polygon3D& rhs)
 		{
-			return lhs.GetAvg() < rhs.GetAvg();
+			return lhs.GetAvg() > rhs.GetAvg();
 		});
 }
 
@@ -115,7 +115,7 @@ void Model::CalculateAmbientLighting(AmbientLighting ambient)
 		tempR = ambient.GetColour(0) * ka_red;
 		tempG = ambient.GetColour(1) * ka_green;
 		tempB = ambient.GetColour(2) * ka_blue;
-		_polygons[index].SetColour(tempR, tempG, tempB);
+		_polygons[index].SetColour((int)tempR,(int) tempG, (int)tempB);
 		index++;
 	}
 }
@@ -126,7 +126,7 @@ void Model::CalculateLightingDirectional(vector<DirectionalLighting> dirLighting
 	int totalR, totalG, totalB, index = 0;
 	for (Polygon3D poly : _polygons)
 	{
-		totalR = 0, totalG = 0, totalB = 0;
+		totalR = poly.GetColour(0), totalG = poly.GetColour(1), totalB = poly.GetColour(2);
 		for (DirectionalLighting source : dirLightingSources)
 		{
 			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);

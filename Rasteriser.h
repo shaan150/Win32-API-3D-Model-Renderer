@@ -7,6 +7,7 @@
 #include "AmbientLighting.h"
 #include "DirectionalLighting.h"
 #include "PointLighting.h"
+#include "Triangle.h"
 #include <vector>
 
 class Rasteriser : public Framework
@@ -20,6 +21,8 @@ public:
 	void GenerateScreenMatrix(float d, float width, float height);
 	void DrawWireFrame(HDC dc);
 	void DrawSolidFlat(HDC dc);
+	void MyDrawSolidFlat(HDC dc);
+	void FillPolygonFlat(Vertex v1, Vertex v2, Vertex v3, int colours[3]);
 	void TransformationControls();
 	void CameraControls();
 

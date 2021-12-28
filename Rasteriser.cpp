@@ -316,6 +316,21 @@ void Rasteriser::DrawSolidFlat(HDC dc)
 
 	/**/
 }
+void Rasteriser::MyDrawSolidFlat(HDC dc)
+{
+	vector<Polygon3D> polygons = _model.GetPolygons();
+	vector<Vertex> _transformedVertices = _model.GetVertices();
+	int index = 0;
+	for (Polygon3D poly : polygons)
+	{
+
+	}
+
+}
+void Rasteriser::FillPolygonFlat(Vertex v1, Vertex v2, Vertex v3, int colours[3])
+{
+
+}
 void Rasteriser::TransformationControls()
 {
 	if (GetKeyState(0x41) & 0x8000)

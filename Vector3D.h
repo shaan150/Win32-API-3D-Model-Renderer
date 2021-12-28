@@ -13,6 +13,7 @@ public:
 	float GetZ() const;
 	void SetZ(const float w);
 
+	float CalculateLength();
 	Vector3D Normalise();
 	float DotProduct(Vector3D a, Vector3D b);
 	Vector3D CrossProduct(Vector3D a, Vector3D b);

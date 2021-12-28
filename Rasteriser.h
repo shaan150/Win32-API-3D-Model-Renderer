@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "AmbientLighting.h"
 #include "DirectionalLighting.h"
+#include "PointLighting.h"
 #include <vector>
 
 class Rasteriser : public Framework
@@ -52,7 +53,8 @@ private:
 	float _xRot{ 0 };
 	float _yRot{ 0 };
 	float _zRot{ 0 };
-	vector<DirectionalLighting> dirLighting;
 	AmbientLighting ambient;
+	vector<DirectionalLighting> dirLighting;
+	vector<PointLighting> pointLightingSources;
 };
 

@@ -27,9 +27,10 @@ bool Rasteriser::Initialise()
 	_camX = 0.0f;
 	_camY = 0.0f;
 	_camZ = 0.0f;
-	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -150.0f));
-	ambient.SetColour(10, 10, 100);
-	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 1.0f), 0, 10, 5));
+	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -50.0f));
+	ambient.SetColour(0, 100, 50);
+	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 1.0f), 0, 100, 50));
+	pointLightingSources.push_back(PointLighting(Vector3D(1.0f, 0.0f, 1.0f),Vertex(0.0f, 0.0f, -50.0f), 10, 10, 10, 0, 1, 0));
 	if (!MD2Loader::LoadModel("marvin.md2", _model,
 		&Model::AddPolygon,
 		&Model::AddVertex))
@@ -189,6 +190,7 @@ void Rasteriser::Render(const Bitmap& bitmap)
 	_model.CalculateBackfaces(_cam.GetPos());
 	_model.CalculateAmbientLighting(ambient);
 	_model.CalculateLightingDirectional(dirLighting);
+	_model.CalculateLightingPoint(pointLightingSources);
 	_model.Sort();
 	_model.ApplyTransformToTransformedVertices(_cam.getTransformation());
 	_model.ApplyTransformToTransformedVertices(_persMatrix);

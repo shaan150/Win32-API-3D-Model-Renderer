@@ -45,9 +45,14 @@ void Vector3D::SetZ(const float z)
 {
 	_z = z;
 }
+float Vector3D::CalculateLength()
+{
+	return sqrtf((float)pow(_x, 2) + (float)pow(_y, 2) + (float)pow(_z, 2));
+}
+
 Vector3D Vector3D::Normalise()
 {
-	float length = sqrtf((float)pow(_x, 2) + (float)pow(_y, 2) + (float)pow(_z, 2));
+	float length = CalculateLength();
 	return Vector3D(
 		_x/length,
 		_y/length,

@@ -6,10 +6,8 @@ DirectionalLighting::DirectionalLighting()
 
 DirectionalLighting::DirectionalLighting(Vector3D direction, int redL, int greenL, int blueL)
 {
-	_direction = direction;
-	_l[0] = redL;
-	_l[1] = greenL;
-	_l[2] = blueL;
+	SetDirection(direction);
+	SetL(redL, greenL, blueL);
 }
 
 Vector3D DirectionalLighting::GetDirection()

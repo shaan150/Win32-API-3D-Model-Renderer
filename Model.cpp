@@ -29,6 +29,18 @@ size_t Model::GetVertexCount() const
 	return size_t(_vertices.size());
 }
 
+int Model::GetColour(int index)
+{
+	return _colour[index];
+}
+
+void Model::SetColour(int red, int green, int blue)
+{
+	_colour[0] = red;
+	_colour[1] = green;
+	_colour[2] = blue;
+}
+
 void Model::AddVertex(float x, float y, float z)
 {
 	_vertices.push_back(Vertex(x, y, z));
@@ -141,6 +153,35 @@ void Model::CalculateLightingDirectional(vector<DirectionalLighting> dirLighting
 		index++;
 	}
 }
+
+void Model::CalculateLightingPoint(vector<PointLighting> pointLightingSources)
+{
+	float tempR, tempG, tempB, dotProduct, distance, atten;
+	int totalR, totalG, totalB, index = 0;
+	Vector3D lightSource;
+	for (Polygon3D poly : _polygons)
+	{
+		totalR = poly.GetColour(0), totalG = poly.GetColour(1), totalB = poly.GetColour(2);
+		for (PointLighting source : pointLightingSources)
+		{
+			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);
+			tempR = (tempR * ks_red);
+			tempG = (tempG * ks_green); 
+			tempB = (tempB * ks_blue); 
+			dotProduct = Vector3D().DotProduct(source.GetDirection().Normalise(), _polygons[index].GetNormal());
+			tempR = tempR * dotProduct, tempG = tempG * dotProduct, tempB = tempB * dotProduct;
+			lightSource = _transformedVertices[poly.GetIndex(0)] - source.GetPos();
+			distance = lightSource.CalculateLength();
+			lightSource.Normalise();
+			atten = (1 / (source.GetCoeffs(0) + source.GetCoeffs(1) * distance + source.GetCoeffs(2) * sqrtf(distance)))*100;
+			tempR = tempR * atten, tempG = tempG * atten, tempB = tempB * atten;
+			totalR = RGBValidator(totalR + (int)tempR), totalG = RGBValidator(totalG + (int)tempG), totalB = RGBValidator(totalB + (int)tempB);
+		}
+		_polygons[index].SetColour(totalR, totalG, totalB);
+		index++;
+	}
+}
+
 int Model::RGBValidator(int value)
 {
 	if (value < 0)
@@ -154,14 +195,4 @@ int Model::RGBValidator(int value)
 
 	return value;
 }
-void Model::SetColour(int red, int green, int blue)
-{
-	_colour[0] = red;
-	_colour[1] = green;
-	_colour[2] = blue;
-}
 
-int Model::GetColour(int index)
-{
-	return _colour[index];
-}

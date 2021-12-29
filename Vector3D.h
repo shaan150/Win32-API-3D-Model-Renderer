@@ -19,6 +19,7 @@ public:
 	Vector3D CrossProduct(Vector3D a, Vector3D b);
 
 	Vector3D& operator=(const Vector3D& rhs);
+	Vector3D& operator+(const Vector3D& rhs);
 
 private:
 	float _x;

@@ -89,3 +89,12 @@ Vector3D& Vector3D::operator=(const Vector3D& rhs)
 	}
 	return *this;
 }
+
+Vector3D& Vector3D::operator+(const Vector3D& rhs)
+{
+	_x += rhs.GetX();
+	_y += rhs.GetY();
+	_z += rhs.GetZ();
+
+	return *this;
+}

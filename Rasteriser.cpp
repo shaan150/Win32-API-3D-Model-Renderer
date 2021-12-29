@@ -27,11 +27,11 @@ bool Rasteriser::Initialise()
 	_camX = 0.0f;
 	_camY = 0.0f;
 	_camZ = 0.0f;
-	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -50.0f));
+	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -10.0f));
 	ambient.SetColour(0, 100, 50);
-	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 1.0f), 0, 100, 50));
-	pointLightingSources.push_back(PointLighting(Vector3D(1.0f, 0.0f, 1.0f),Vertex(0.0f, 0.0f, -50.0f), 10, 10, 10, 0, 1, 0));
-	if (!MD2Loader::LoadModel("marvin.md2", _model,
+	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 10.0f), 0, 200, 50));
+	pointLightingSources.push_back(PointLighting(Vector3D(1.0f, 0.0f, 10.0f),Vertex(0.0f, 0.0f, -50.0f), 10, 10, 10, 0, 1, 0));
+	if (!MD2Loader::LoadModel("teapot.md2", _model,
 		&Model::AddPolygon,
 		&Model::AddVertex))
 	{
@@ -188,9 +188,12 @@ void Rasteriser::Render(const Bitmap& bitmap)
 {
 	_model.ApplyTransformToLocalVertices(_modelTransfromation);
 	_model.CalculateBackfaces(_cam.GetPos());
+	_model.CalculateVerticesNormal();
 	_model.CalculateAmbientLighting(ambient);
-	_model.CalculateLightingDirectional(dirLighting);
-	_model.CalculateLightingPoint(pointLightingSources);
+	//_model.CalculateLightingDirectional(dirLighting);
+	_model.CalculateLightingDirectionalVertex(dirLighting);
+	//_model.CalculateLightingPoint(pointLightingSources);
+	_model.CalculateLightingPointVertex(pointLightingSources);
 	_model.Sort();
 	_model.ApplyTransformToTransformedVertices(_cam.getTransformation());
 	_model.ApplyTransformToTransformedVertices(_persMatrix);
@@ -199,9 +202,10 @@ void Rasteriser::Render(const Bitmap& bitmap)
 	
 	
 	// Clear the bitmap to white
-	bitmap.Clear(RGB(0, 0, 0));
-	DrawWireFrame(bitmap.GetDC());
+	bitmap.Clear(RGB(0,0, 0));
+	//DrawWireFrame(bitmap.GetDC());
 	DrawSolidFlat(bitmap.GetDC());
+	//MyDrawSolidFlat(bitmap.GetDC());
 	// Now draw a 50 pixel square at the cursor position
 	//DrawSquare(newSquare,bitmap.GetDC());
 	// We do not need to call InvalidateRect since this is taken care of 
@@ -249,14 +253,15 @@ void Rasteriser::DrawWireFrame(HDC dc)
 	int index = 0;
 	vector<Polygon3D> polygons = _model.GetPolygons();
 	vector<Vertex> _transformedVertices = _model.GetVertices();
-	//HPEN hPen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
-	//HPEN hOldPen = SelectPen(dc, hPen);
+	
 
 	for (Polygon3D poly : polygons)
 	{
 		bool culling = polygons[index].GetCulling();
 		if (culling == false)
 		{
+			HPEN hPen = CreatePen(PS_SOLID, 2, RGB(poly.GetColour(0), poly.GetColour(1), poly.GetColour(2)));
+			HPEN hOldPen = SelectPen(dc, hPen);
 			MoveToEx(dc, (int)_transformedVertices[poly.GetIndex(0)].GetX(), (int)_transformedVertices[poly.GetIndex(0)].GetY(), NULL);
 			for (int i = 0; i < 3; i++)
 			{
@@ -267,14 +272,15 @@ void Rasteriser::DrawWireFrame(HDC dc)
 					LineTo(dc, (int)_transformedVertices[poly.GetIndex(0)].GetX(), (int)_transformedVertices[(int)poly.GetIndex(0)].GetY());
 				}
 			}
+			SelectPen(dc, hOldPen);
+			DeleteObject(hPen);
 		}
 
 		index++;
 		
 	}
 
-	//SelectPen(dc, hOldPen);
-	//DeleteObject(hPen);
+	
 
 }
 void Rasteriser::DrawSolidFlat(HDC dc)
@@ -323,14 +329,20 @@ void Rasteriser::MyDrawSolidFlat(HDC dc)
 	int index = 0;
 	for (Polygon3D poly : polygons)
 	{
-
+		bool culling = polygons[index].GetCulling();
+		if (culling == false)
+		{
+			FillPolygonFlat(dc, _transformedVertices[poly.GetIndex(0)], _transformedVertices[poly.GetIndex(1)], _transformedVertices[poly.GetIndex(2)], poly.GetColour(0), poly.GetColour(1), poly.GetColour(2));
+		}
+		index++;
 	}
 
 }
-void Rasteriser::FillPolygonFlat(Vertex v1, Vertex v2, Vertex v3, int colours[3])
+void Rasteriser::FillPolygonFlat(HDC dc, Vertex v1, Vertex v2, Vertex v3, int red, int green, int blue)
 {
-
+	Triangle(v1, v2, v3, red, green, blue).DrawBarycentric(dc);
 }
+
 void Rasteriser::TransformationControls()
 {
 	if (GetKeyState(0x41) & 0x8000)

@@ -18,7 +18,16 @@ public:
 	void SetZ(const float w);
 	float GetW() const;
 	void SetW(const float w);
+	Vector3D GetNormal();
+	void SetNormal(Vector3D normal);
+	int GetCount();
+	void SetCount(int contCount);
+	int GetColour(int index);
+	void SetColours(int red, int green, int blue);
+
 	Vertex DehomogeniseVertex();
+	
+
 
 	// Assignment operator
 	Vertex& operator= (const Vertex& rhs);
@@ -33,5 +42,8 @@ private:
 	float _y;
 	float _z;
 	float _w;
+	Vector3D _normal;
+	int _contCount;
+	int _colours[3] = { 0,0,0 };
 };
 

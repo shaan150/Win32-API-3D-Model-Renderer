@@ -15,7 +15,7 @@ public:
 
 	float CrossProduct(Vertex v1, Vertex v2);
 	void SortByY();
-	void Draw(HDC dc);
+	void DrawBarycentric(HDC dc);
 private:
 	Vertex _vertices[3] = { Vertex(), Vertex(), Vertex() };
 	int _colours[3] = { 0, 0, 0 };

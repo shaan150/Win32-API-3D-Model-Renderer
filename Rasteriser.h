@@ -22,7 +22,7 @@ public:
 	void DrawWireFrame(HDC dc);
 	void DrawSolidFlat(HDC dc);
 	void MyDrawSolidFlat(HDC dc);
-	void FillPolygonFlat(Vertex v1, Vertex v2, Vertex v3, int colours[3]);
+	void FillPolygonFlat(HDC dc, Vertex v1, Vertex v2, Vertex v3, int red, int green, int blue);
 	void TransformationControls();
 	void CameraControls();
 

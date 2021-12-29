@@ -1,4 +1,5 @@
 #include "Triangle.h"
+#include <windowsx.h>
 
 Triangle::Triangle()
 {
@@ -72,13 +73,17 @@ void Triangle::SortByY()
     }
 }
 
-void Triangle::Draw(HDC dc)
+void Triangle::DrawBarycentric(HDC dc)
 {
     SortByY();
+    HPEN hPen = CreatePen(PS_SOLID, 2, RGB(_colours[0], _colours[1], _colours[2]));
+    HPEN hOldPen = SelectPen(dc, hPen);
     MoveToEx(dc, (int)_vertices[0].GetX(), (int)_vertices[0].GetY(), (LPPOINT)NULL);
     LineTo(dc, (int)_vertices[1].GetX(), (int)_vertices[1].GetY());
     LineTo(dc, (int)_vertices[2].GetX(), (int)_vertices[2].GetY());
-    LineTo(dc, (int)_vertices[3].GetX(), (int)_vertices[3].GetY());
+    LineTo(dc, (int)_vertices[0].GetX(), (int)_vertices[0].GetY());
+    SelectPen(dc, hOldPen);
+    DeleteObject(hPen);
 
     float maxX = max(_vertices[0].GetX(), max(_vertices[1].GetX(), _vertices[2].GetX()));
     float minX = min(_vertices[0].GetX(), min(_vertices[1].GetX(), _vertices[2].GetX()));
@@ -90,11 +95,11 @@ void Triangle::Draw(HDC dc)
     Vertex v1 = Vertex(_vertices[1].GetX() - _vertices[0].GetX(), _vertices[1].GetY() - _vertices[0].GetY(), _vertices[1].GetZ() - _vertices[0].GetZ());
     Vertex v2 = Vertex(_vertices[2].GetX() - _vertices[0].GetX(), _vertices[2].GetY() - _vertices[0].GetY(), _vertices[2].GetZ() - _vertices[0].GetZ());
 
-    for (int x = minX; x <= maxX; x++)
+    for (float x = minX; x <= maxX; x++)
     {
-        for (int y = minY; y <= maxY; y++)
+        for (float y = minY; y <= maxY; y++)
         {
-            for (int z = minZ; z <= maxZ; z++)
+            for (float z = minZ; z <= maxZ; z++)
             {
                 Vertex q = Vertex(x - _vertices[0].GetX(), y - _vertices[0].GetY(), z - _vertices[0].GetZ());
 
@@ -103,7 +108,7 @@ void Triangle::Draw(HDC dc)
 
                 if ((s >= 0) && (t >= 0) && (s + t <= 1))
                 {
-                    SetPixel(dc, x, y, COLORREF(RGB(_colours[0], _colours[1], _colours[2])));
+                    SetPixel(dc, (int)x, (int)y, COLORREF(RGB(_colours[0], _colours[1], _colours[2])));
                 }
             }
         }

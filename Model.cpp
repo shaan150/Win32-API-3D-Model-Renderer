@@ -138,7 +138,7 @@ void Model::CalculateLightingDirectional(vector<DirectionalLighting> dirLighting
 	int totalR, totalG, totalB, index = 0;
 	for (Polygon3D poly : _polygons)
 	{
-		totalR = poly.GetColour(0), totalG = poly.GetColour(1), totalB = poly.GetColour(2);
+		totalR = _polygons[index].GetColour(0), totalG = _polygons[index].GetColour(1), totalB = _polygons[index].GetColour(2);
 		for (DirectionalLighting source : dirLightingSources)
 		{
 			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);
@@ -154,6 +154,28 @@ void Model::CalculateLightingDirectional(vector<DirectionalLighting> dirLighting
 	}
 }
 
+void Model::CalculateLightingDirectionalVertex(vector<DirectionalLighting> dirLightingSources)
+{
+	float tempR, tempG, tempB, dotProduct;
+	int totalR, totalG, totalB, index = 0;
+	for (Polygon3D poly : _polygons)
+	{
+		totalR = _polygons[index].GetColour(0), totalG = _polygons[index].GetColour(1), totalB = _polygons[index].GetColour(2);
+		for (DirectionalLighting source : dirLightingSources)
+		{
+			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);
+			tempR = (tempR * ks_red);
+			tempG = (tempG * ks_green);
+			tempB = (tempB * ks_blue);
+			dotProduct = Vector3D().DotProduct(source.GetDirection().Normalise(), _transformedVertices[_polygons[index].GetIndex(0)].GetNormal()+_transformedVertices[_polygons[index].GetIndex(1)].GetNormal()+_transformedVertices[_polygons[index].GetIndex(2)].GetNormal());
+			tempR = tempR * dotProduct, tempG = tempG * dotProduct, tempB = tempB * dotProduct;
+			totalR = RGBValidator(totalR + (int)tempR), totalG = RGBValidator(totalG + (int)tempG), totalB = RGBValidator(totalB + (int)tempB);
+		}
+		_polygons[index].SetColour(totalR, totalG, totalB);
+		index++;
+	}
+}
+
 void Model::CalculateLightingPoint(vector<PointLighting> pointLightingSources)
 {
 	float tempR, tempG, tempB, dotProduct, distance, atten;
@@ -161,19 +183,47 @@ void Model::CalculateLightingPoint(vector<PointLighting> pointLightingSources)
 	Vector3D lightSource;
 	for (Polygon3D poly : _polygons)
 	{
-		totalR = poly.GetColour(0), totalG = poly.GetColour(1), totalB = poly.GetColour(2);
+		totalR = _polygons[index].GetColour(0), totalG = _polygons[index].GetColour(1), totalB = _polygons[index].GetColour(2);
 		for (PointLighting source : pointLightingSources)
 		{
 			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);
 			tempR = (tempR * ks_red);
-			tempG = (tempG * ks_green); 
-			tempB = (tempB * ks_blue); 
+			tempG = (tempG * ks_green);
+			tempB = (tempB * ks_blue);
 			dotProduct = Vector3D().DotProduct(source.GetDirection().Normalise(), _polygons[index].GetNormal());
 			tempR = tempR * dotProduct, tempG = tempG * dotProduct, tempB = tempB * dotProduct;
-			lightSource = _transformedVertices[poly.GetIndex(0)] - source.GetPos();
+			lightSource = _transformedVertices[_polygons[index].GetIndex(0)] - source.GetPos();
 			distance = lightSource.CalculateLength();
 			lightSource.Normalise();
-			atten = (1 / (source.GetCoeffs(0) + source.GetCoeffs(1) * distance + source.GetCoeffs(2) * sqrtf(distance)))*100;
+			atten = (1 / (source.GetCoeffs(0) + source.GetCoeffs(1) * distance + source.GetCoeffs(2) * sqrtf(distance))) * 100;
+			tempR = tempR * atten, tempG = tempG * atten, tempB = tempB * atten;
+			totalR = RGBValidator(totalR + (int)tempR), totalG = RGBValidator(totalG + (int)tempG), totalB = RGBValidator(totalB + (int)tempB);
+		}
+		_polygons[index].SetColour(totalR, totalG, totalB);
+		index++;
+	}
+}
+
+void Model::CalculateLightingPointVertex(vector<PointLighting> pointLightingSources)
+{
+	float tempR, tempG, tempB, dotProduct, distance, atten;
+	int totalR, totalG, totalB, index = 0;
+	Vector3D lightSource;
+	for (Polygon3D poly : _polygons)
+	{
+		totalR = _polygons[index].GetColour(0), totalG = _polygons[index].GetColour(1), totalB = _polygons[index].GetColour(2);
+		for (PointLighting source : pointLightingSources)
+		{
+			tempR = (float)source.GetL(0), tempG = (float)source.GetL(1), tempB = (float)source.GetL(2);
+			tempR = (tempR * ks_red);
+			tempG = (tempG * ks_green);
+			tempB = (tempB * ks_blue);
+			dotProduct = Vector3D().DotProduct(source.GetDirection().Normalise(), _transformedVertices[_polygons[index].GetIndex(0)].GetNormal()+ _transformedVertices[_polygons[index].GetIndex(1)].GetNormal()+ _transformedVertices[_polygons[index].GetIndex(2)].GetNormal());
+			tempR = tempR * dotProduct, tempG = tempG * dotProduct, tempB = tempB * dotProduct;
+			lightSource = (_transformedVertices[_polygons[index].GetIndex(0)] + _transformedVertices[_polygons[index].GetIndex(1)] + _transformedVertices[_polygons[index].GetIndex(2)]) - source.GetPos();
+			distance = lightSource.CalculateLength();
+			lightSource.Normalise();
+			atten = (1 / (source.GetCoeffs(0) + source.GetCoeffs(1) * distance + source.GetCoeffs(2) * sqrtf(distance))) * 100;
 			tempR = tempR * atten, tempG = tempG * atten, tempB = tempB * atten;
 			totalR = RGBValidator(totalR + (int)tempR), totalG = RGBValidator(totalG + (int)tempG), totalB = RGBValidator(totalB + (int)tempB);
 		}
@@ -194,5 +244,32 @@ int Model::RGBValidator(int value)
 	}
 
 	return value;
+}
+
+void Model::CalculateVerticesNormal()
+{
+	int vertIndex = 0, polyIndex = 0;
+	for (Vertex vertex : _transformedVertices)
+	{
+		_transformedVertices[vertIndex].SetNormal(Vector3D(0, 0, 0));
+		_transformedVertices[vertIndex].SetCount(0);
+		vertIndex++;
+	}
+	vertIndex = 0;
+	for (Polygon3D poly : _polygons)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			_transformedVertices[_polygons[polyIndex].GetIndex(i)].SetNormal(_polygons[polyIndex].GetNormal());
+			_transformedVertices[_polygons[polyIndex].GetIndex(i)].SetCount(_transformedVertices[_polygons[polyIndex].GetIndex(i)].GetCount() + 1);
+		}
+		polyIndex++;
+	}
+
+	for (Vertex vertex : _transformedVertices)
+	{
+		_transformedVertices[vertIndex].SetNormal(Vector3D(vertex.GetNormal().GetX() / vertex.GetCount(), vertex.GetNormal().GetY() / vertex.GetCount(), vertex.GetNormal().GetZ() / vertex.GetCount()));
+		_transformedVertices[vertIndex].SetNormal(vertex.GetNormal().Normalise());
+	}
 }
 

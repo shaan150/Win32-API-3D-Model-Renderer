@@ -29,8 +29,11 @@ public:
 	void Sort();
 	void CalculateAmbientLighting(AmbientLighting ambient);
 	void CalculateLightingDirectional(vector<DirectionalLighting> dirLightingSources);
+	void CalculateLightingDirectionalVertex(vector<DirectionalLighting> dirLightingSources);
 	void CalculateLightingPoint(vector<PointLighting> pointLightingSources);
+	void CalculateLightingPointVertex(vector<PointLighting> pointLightingSources);
 	int RGBValidator(int value);
+	void CalculateVerticesNormal();
 	
 private:
 	vector<Polygon3D> _polygons;

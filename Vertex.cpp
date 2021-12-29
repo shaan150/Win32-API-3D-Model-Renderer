@@ -3,26 +3,28 @@
 
 Vertex::Vertex()
 {
-	_x = 0.0f;
-	_y = 0.0f;
-	_w = 0.0f;
-	_z = 0.0f;
+	SetX(0.0f);
+	SetY(0.0f);
+	SetW(0.0f);
+	SetZ(0.0f);
+	SetCount(0);
 }
 
 Vertex::Vertex(float x, float y, float z)
 {
-	_x = x;
-	_y = y;
-	_z = z;
-	_w = 1;
+	SetX(x);
+	SetY(y);
+	SetW(1.0f);
+	SetZ(z);
+	SetCount(0);
 }
 
 Vertex::Vertex(const Vertex & other)
 {
-	_x = other.GetX();
-	_y = other.GetY();
-	_z = other.GetZ();
-	_w = other.GetW();
+	SetX(other.GetX());
+	SetY(other.GetY());
+	SetW(other.GetW());
+	SetZ(other.GetZ());
 
 }
 
@@ -65,6 +67,38 @@ void Vertex::SetW(const float w)
 	_w = w;
 }
 
+Vector3D Vertex::GetNormal()
+{
+	return _normal;
+}
+
+void Vertex::SetNormal(Vector3D normal)
+{
+	_normal = normal;
+}
+
+int Vertex::GetCount()
+{
+	return _contCount;
+}
+
+void Vertex::SetCount(int contCount)
+{
+	_contCount = contCount;
+}
+
+int Vertex::GetColour(int index)
+{
+	return _colours[index];
+}
+
+void Vertex::SetColours(int red, int green, int blue)
+{
+	_colours[0] = red;
+	_colours[1] = green;
+	_colours[2] = blue;
+}
+
 Vertex Vertex::DehomogeniseVertex()
 {
 	SetX(_x / _w);
@@ -80,10 +114,10 @@ Vertex& Vertex::operator=(const Vertex& rhs)
 	// to ourselves
 	if (this != &rhs)
 	{
-		_x = rhs.GetX();
-		_y = rhs.GetY();
-		_z = rhs.GetZ();
-		_w = rhs.GetW();
+		SetX(rhs.GetX());
+		SetY(rhs.GetY());
+		SetW(rhs.GetW());
+		SetZ(rhs.GetZ());
 	}
 	return *this;
 }

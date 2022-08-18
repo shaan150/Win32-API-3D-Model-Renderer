@@ -156,8 +156,6 @@
     <ClCompile Include="PointLighting.cpp" />
     <ClCompile Include="Polygon3D.cpp" />
     <ClCompile Include="Rasteriser.cpp" />
-    <ClCompile Include="SpotLighting.cpp" />
-    <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Vector3D.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
@@ -174,9 +172,7 @@
     <ClInclude Include="Polygon3D.h" />
     <ClInclude Include="Rasteriser.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SpotLighting.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vector3D.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

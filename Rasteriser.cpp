@@ -1,50 +1,33 @@
 #include "Rasteriser.h"
-#include "Polygon3D.h"
-#include <cmath>
 #include <windowsx.h>
-#define PI 3.14159265f
+#include <cmath>
 
+#define PI 3.14159265f
 
 Rasteriser app;
 
 
 bool Rasteriser::Initialise()
 {
-	// This method override can be used to initialise any
-	/*_x = 0;
-	_y = 0;
-	_xScale = 1.3f;
-	_yScale = 1.2f;
-	_translation = 5;*/
-	_x = 0;
-	_y = 0;
-	_z = 0;
-	_xRot = 1.0f;
-	_yRot = 1.0f;
-	_zRot = 1.0f;
+	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -50.0f)); //Added camera class instance with values set to example ones provided in tutorial
+	_ambient.SetColour(0, 100, 50);
+	_dirLightingSources.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 1.0f), 0, 200, 50));
+	_pointLightingSources.push_back(PointLighting(Vector3D(1.0f, 0.0f, 10.0f), Vertex(0.0f, 0.0f, -50.0f), 0, 10, 10, 0, 1, 0));
 	_xScale = 1.0f;
 	_yScale = 1.0f;
-	_camX = 0.0f;
-	_camY = 0.0f;
-	_camZ = 0.0f;
-	_cam = Camera(0, 0, 0, Vertex(0.0f, 0.0f, -10.0f));
-	ambient.SetColour(0, 100, 50);
-	dirLighting.push_back(DirectionalLighting(Vector3D(1.0f, 0.0f, 10.0f), 0, 200, 50));
-	pointLightingSources.push_back(PointLighting(Vector3D(1.0f, 0.0f, 10.0f),Vertex(0.0f, 0.0f, -50.0f), 10, 10, 10, 0, 1, 0));
-	if (!MD2Loader::LoadModel("teapot.md2", _model,
+	_zScale = 1.0f;
+	_yRot = 1.0f;
+	// This method override can be used to initialise any
+	if (!MD2Loader::LoadModel("marvin.md2", _model, // I am utilising just the name of the 3D model as it's in the project files
 		&Model::AddPolygon,
 		&Model::AddVertex))
 	{
 		return false;
 	}
 	return true;
-
 	
-	
-
 	// Make sure you return true unless there were any errors
 	// in this method
-	return true;
 }
 
 void Rasteriser::Update(const Bitmap& bitmap)
@@ -52,180 +35,346 @@ void Rasteriser::Update(const Bitmap& bitmap)
 	float width = (float)bitmap.GetWidth();
 	float height = (float)bitmap.GetHeight();
 	float aspectRatio = width / height;
-	_modelTransfromation = Matrix({
-		1,0,0,_x,
-		0,1,0,_y,
-		0,0,1,_z,
-		0,0,0,1
+
+		switch ((int)_timer)
+		{
+			case 0:
+				_displayRenderType = "Wireframe without culling";
+				_displayTransformation = "Translating On X & Y & Z";
+				_displayLighting = "";
+				_wireframe = true;
+				_backculling = false;
+				_flat = false;
+				_ambientLighting = false;
+				_directionalLighting = false;
+				_pointLighting = false;
+				_translDisplay = true;
+				_rotDisplay = false;
+				_scaleDisplay = false;
+				break;
+
+			case 4:
+				_displayTransformation = "Rotating On X & Y & Z Axis";
+				_translDisplay = false;
+				_rotDisplay = true;
+				break;
+
+			case 8:
+				_displayTransformation = "Scaling On X & Y & Z Axis";
+				_rotDisplay = false;
+				_scaleDisplay = true;
+				break;
+
+			case 12:
+				_displayTransformation = "Performing All Transformations";
+				_translDisplay = true;
+				_rotDisplay = true;
+				break;
+
+			case 16:
+				_backculling = true;
+				_displayRenderType = "Wireframe with culling";
+				_displayTransformation = "Translating On X & Y & Z";
+				_rotDisplay = false;
+				_scaleDisplay = false;
+				break;
+			
+			case 20:
+				_displayTransformation = "Rotating On X & Y & Z Axis";
+				_translDisplay = false;
+				_rotDisplay = true;
+				break;
+
+			case 24:
+				_displayTransformation = "Scaling On X & Y & Z Axis";
+				_rotDisplay = false;
+				_scaleDisplay = true;
+				break;
+
+			case 28:
+				_displayTransformation = "Performing All Transformations";
+				_translDisplay = true;
+				_rotDisplay = true;
+				break;
+
+			case 32:
+				_wireframe = false;
+				_flat = true;
+				_displayRenderType = "Flat";
+				_displayLighting = "Ambient Lighting";
+				_displayTransformation = "Rotating On X & Y & Z Axis";
+				_ambientLighting = true;
+				_translDisplay = false;
+				_scaleDisplay = false;
+				_xRot = 0.0f, _yRot = 0.0f, _zRot = 0.0f;
+				break;
+
+			case 40:
+				_displayLighting = "Directional Lighting";
+				_ambientLighting = false;
+				_directionalLighting = true;
+				_xRot = 0.0f, _yRot = 0.0f, _zRot = 0.0f;
+				break;
+
+			case 48:
+				_displayLighting = "Point Lighting";
+				_directionalLighting = false;
+				_pointLighting = true;
+				_xRot = 0.0f, _yRot = 0.0f, _zRot = 0.0f;
+				break;
+
+			case 56:
+				_displayLighting = "All Lighting";
+				_directionalLighting = true;
+				_ambientLighting = true;
+				_xRot = 0.0f, _yRot = 0.0f, _zRot = 0.0f;
+				break;
+
+		}
+
+		
+
+	_modelTransformation = Matrix({
+	1,0,0,_x,
+	0,1,0,_y,
+	0,0,1,_z,
+	0,0,0,1
 		});
 
-	_modelTransfromation = Matrix(
+	_modelTransformation = Matrix(
 		{
 			_xScale, 0, 0,0,
 			0, _yScale,0,0,
-			0,0,1,0,
+			0,0,1,_zScale,
 			0,0,0,1
-		}) * _modelTransfromation;
+		}) * _modelTransformation;
 
-	/*_modelTransfromation = Matrix(
+	_modelTransformation = Matrix(
 		{
 			1 , 0, 0, 0,
 			0, cos(_xRot * (PI / 180)), -sin(_xRot * (PI / 180)), 0,
 			0, sin(_xRot * (PI / 180)), cos(_xRot * (PI / 180)), 0,
 			0, 0, 0, 1
-		}) * _modelTransfromation;*/
+		}) * _modelTransformation;
 
-	_modelTransfromation = Matrix({
+	_modelTransformation = Matrix({
 		cos(_yRot * (PI / 180)), 0, sin(_yRot * (PI / 180)), 0,
 		0, 1, 0, 0,
 		-sin(_yRot * (PI / 180)), 0, cos(_yRot * (PI / 180)), 0,
 		0, 0, 0, 1
-		}) * _modelTransfromation;
+		}) * _modelTransformation;
 
-	/*_modelTransfromation = Matrix({
+	_modelTransformation = Matrix({
 		cos(_zRot * (PI / 180)), -sin(_zRot * (PI / 180)), 0, 0,
 		sin(_zRot * (PI / 180)), cos(_zRot * (PI / 180)), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
-		}) * _modelTransfromation;*/
+		}) * _modelTransformation;
 
-
-	/*if (_x > 100)
+	if (_translDisplay)
 	{
-		_x -= 0.5;
+		if (_left)
+		{
+			_x += 0.5;
+			if (_x == 10)
+			{
+				_left = false;
+			}
+		}
+
+		else if (!_left)
+		{
+			_x -= 0.5;
+			if (_x == -10)
+			{
+				_left = true;
+			}
+		}
+
+		if (_up)
+		{
+			_y += 0.5;
+			if (_y == 10)
+			{
+				_up = false;
+			}
+		}
+
+		else if (!_up)
+		{
+			_y -= 0.5;
+			if (_y == -10)
+			{
+				_up = true;
+			}
+		}
+
+		if (_forwards)
+		{
+			_z += 0.5;
+			if (_z == 10)
+			{
+				_forwards = false;
+			}
+		}
+
+		if (!_forwards)
+		{
+			_z -= 0.5;
+			if (_z == -10)
+			{
+				_forwards = true;
+			}
+		}
 	}
 	else
 	{
-		_x += 0.5;
+		_x = 0.0f;
+		_y = 0.0f;
+		_z = 0.0f;
 	}
-
-	if (_y > bitmap.GetHeight())
+	if (_scaleDisplay)
 	{
-		_y -= 0.5;
+		if (_wider)
+		{
+			_xScale += 0.01f;
+			if (_xScale >= 1.2)
+			{
+				_wider = false;
+			}
+		}
+		else
+		{
+			_xScale -= 0.01f;
+			if (_xScale <= 0.8)
+			{
+				_wider = true;
+			}
+		}
+		if (_taller)
+		{
+			_yScale += 0.01f;
+			if (_yScale >= 1.2)
+			{
+				_taller = false;
+			}
+		}
+		else
+		{
+			_yScale -= 0.01f;
+			if (_yScale <= 0.8f)
+			{
+				_taller = true;
+			}
+		}
+		if (_longer)
+		{
+			_zScale += 0.01f;
+			if (_zScale >= 1.2)
+			{
+				_longer = false;
+			}
+		}
+		else
+		{
+			_zScale -= 0.01f;
+			if (_zScale <= 0.8f)
+			{
+				_longer = true;
+			}
+		}
 	}
 	else
 	{
-		_y += 0.5;
-	}*/
-	if (_xScale > 2)
-	{
-		_xScale -= 0.5;
+		_xScale = 1.0f;
+		_yScale = 1.0f;
+		_zScale = 1.0f;
 	}
-	else if (_xScale == 0)
-	{
-		_xScale += 0.5;
-	}
-	if (_yScale > 2)
-	{
-		_yScale -= 0.5;
-	}
-	else if (_yScale == 0)
-	{
-		_yScale += 0.5;
-	}
-	_xRot += 0.5;
-	_yRot += 1;
-	_zRot += 1.5;
 
+	if (_rotDisplay)
+	{
+		if (_clockwise)
+		{
+			_xRot += 0.5;
+			_yRot += 0.5;
+			_zRot += 0.5;
+			if (_xRot >= 75 || _yRot >= 75 || _zRot >= 75)
+			{
+				_clockwise = false;
+			}
+		}
+		else
+		{
+			_xRot -= 0.5;
+			_yRot -= 0.5;
+			_zRot -= 0.5;
+			if (_xRot <= -75 || _yRot <= -75 || _zRot <= -75)
+			{
+				_clockwise = true;
+			}
+		}
+		
+	}
+	else
+	{
+		_xRot = 0;
+		_yRot = 0;
+		_zRot = 0;
+	}
+	_timer+= 0.05f;
 
 	GeneratePerspectiveMatrix(1, aspectRatio);
 	GenerateScreenMatrix(1, width, height);
-
-	
-
-/*
-	for (int i = 0;  i < 4; i++)
-	{
-		Vertex translLine = Matrix({
-			1,0,0,_translation,
-			0,1,0,_translation,
-			0,0,1,1,
-			0,0,0,1
-		}) * square[i];
-		translLine = Matrix({
-			_xScale, 0, 0,0,
-			0, _yScale,0,0,
-			0,0,1,0,
-			0,0,0,1
-			}) * translLine;
-		translLine = Matrix({
-			cos(_rotation * (PI / 180)), -sin(_rotation * (PI / 180)), 0,0,
-			sin(_rotation * (PI / 180)), cos(_rotation * (PI / 180)), 0,0,
-			0, 0, 1,0,
-			0,0,0,1
-			})* translLine;
-		newSquare[i] = translLine;
-	}
-	_translation += 5;
-	_xScale += 1.3f;
-	_yScale += 1.2f;
-	_rotation -= 5;
-	
-	_x = newSquare[0].GetX();
-	_y = newSquare[0].GetY();
-
-	if (_x > bitmap.GetWidth() && _y > bitmap.GetHeight())
-	{
-		_x = 0;
-		_y = 0;
-		_xScale = 1.3f;
-		_yScale = 1.2f;
-		_translation = 5;
-		_rotation = 5;
-
-		for (int i = 0; i < 4; i++)
-		{
-			newSquare[i] = square[i];
-		}
-	}
-	*/
-
-
 }
 
 
 void Rasteriser::Render(const Bitmap& bitmap)
 {
-	_model.ApplyTransformToLocalVertices(_modelTransfromation);
-	_model.CalculateBackfaces(_cam.GetPos());
-	_model.CalculateVerticesNormal();
-	_model.CalculateAmbientLighting(ambient);
-	//_model.CalculateLightingDirectional(dirLighting);
-	_model.CalculateLightingDirectionalVertex(dirLighting);
-	//_model.CalculateLightingPoint(pointLightingSources);
-	_model.CalculateLightingPointVertex(pointLightingSources);
-	_model.Sort();
-	_model.ApplyTransformToTransformedVertices(_cam.getTransformation());
-	_model.ApplyTransformToTransformedVertices(_persMatrix);
-	_model.DehomogeniseVertices();
-	_model.ApplyTransformToTransformedVertices(_screenMatrix);
+	bitmap.Clear(RGB(0, 0, 0)); //Sets background colour
+	_model.ApplyTransformToLocalVertices(_modelTransformation); //Applies the transformations generated in the update class such as rotation
+	if (_backculling)
+	{
+		_model.CalculateBackfaces(_cam.GetPos()); // Marks which polygons are to visible
+	}
 	
+	if (_ambientLighting)
+	{
+		_model.CalculateAmbientLighting(_ambient);
+	}
+	if (_directionalLighting)
+	{
+		_model.CalculateLightingDirectional(_dirLightingSources);
+	}
 	
-	// Clear the bitmap to white
-	bitmap.Clear(RGB(0,0, 0));
-	//DrawWireFrame(bitmap.GetDC());
-	DrawSolidFlat(bitmap.GetDC());
-	//MyDrawSolidFlat(bitmap.GetDC());
-	// Now draw a 50 pixel square at the cursor position
-	//DrawSquare(newSquare,bitmap.GetDC());
-	// We do not need to call InvalidateRect since this is taken care of 
-	// in the framework every time Render() is called
-}
-void Rasteriser::DrawSquare(Vertex square[4], HDC hdc)
-{
-		HPEN hPenOld;
-		HPEN hLinePen;
-		COLORREF qLineColor;
-		qLineColor = RGB(255, 0, 0);
-		hLinePen = CreatePen(PS_SOLID, 1, qLineColor);
-		hPenOld = (HPEN)SelectObject(hdc, hLinePen);
-		MoveToEx(hdc, (int)square[0].GetX(), (int)square[0].GetY(), NULL);
-		LineTo(hdc, (int)square[1].GetX(), (int)square[1].GetY());
-		LineTo(hdc, (int)square[2].GetX(), (int)square[2].GetY());
-		LineTo(hdc, (int)square[3].GetX(), (int)square[3].GetY());
-		LineTo(hdc, (int)square[0].GetX(), (int)square[0].GetY());
-		DeleteObject(hLinePen);
+	if (_pointLighting)
+	{
+		_model.CalculateLightingPoint(_pointLightingSources);
+	}
 	
+	_model.ApplyTransformToTransformedVertices(_cam.getTransformation()); //Applies the camera / viewing transformations
+	if (_backculling)
+	{
+		_model.Sort();
+	}
+	_model.ApplyTransformToTransformedVertices(_persMatrix); //Applies the perspective transformations
+	_model.DehomogeniseVertices(); // Dehomogenises the model vertices
+	_model.ApplyTransformToTransformedVertices(_screenMatrix); // Applies screen transformations
+	if (_wireframe)
+	{
+		DrawWireFrame(bitmap.GetDC()); // Generates the wireframe of the model
+	}
+	if (_flat)
+	{
+		DrawSolidFlat(bitmap.GetDC());
+	}
+	wstring displayRenderType_wstr(_displayRenderType.begin(), _displayRenderType.end());
+	wstring displayTransformation_wstr(_displayTransformation.begin(), _displayTransformation.end());
+	wstring displayLighting_wstr(_displayLighting.begin(), _displayLighting.end());
+	//then this should work:
+	
+	DrawString(bitmap, displayRenderType_wstr.c_str(),10,10);
+	DrawString(bitmap, displayTransformation_wstr.c_str(),10,60);
+	DrawString(bitmap, displayLighting_wstr.c_str(), 10, 110);
 }
 
 void Rasteriser::GeneratePerspectiveMatrix(float d, float aspectRatio)
@@ -252,202 +401,86 @@ void Rasteriser::DrawWireFrame(HDC dc)
 {
 	int index = 0;
 	vector<Polygon3D> polygons = _model.GetPolygons();
-	vector<Vertex> _transformedVertices = _model.GetVertices();
-	
+	vector<Vertex> transformedVertices = _model.GetVertices();
 
-	for (Polygon3D poly : polygons)
+	for (Polygon3D poly : polygons) //Loops through each of the polygons
 	{
-		bool culling = polygons[index].GetCulling();
-		if (culling == false)
+		if (poly.GetCulling() == false)
 		{
-			HPEN hPen = CreatePen(PS_SOLID, 2, RGB(poly.GetColour(0), poly.GetColour(1), poly.GetColour(2)));
+			HPEN hPen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); //Sets the colour of the lines
 			HPEN hOldPen = SelectPen(dc, hPen);
-			MoveToEx(dc, (int)_transformedVertices[poly.GetIndex(0)].GetX(), (int)_transformedVertices[poly.GetIndex(0)].GetY(), NULL);
+			MoveToEx(dc, (int)transformedVertices[poly.GetIndex(0)].GetX(), (int)transformedVertices[poly.GetIndex(0)].GetY(), NULL); // updates the current position to the first vertex in this polygon
 			for (int i = 0; i < 3; i++)
 			{
-				LineTo(dc, (int)_transformedVertices[poly.GetIndex(i)].GetX(), (int)_transformedVertices[(int)poly.GetIndex(i)].GetY());
-				if (i >= 2)
-				{
-					LineTo(dc, (int)_transformedVertices[poly.GetIndex(i)].GetX(), (int)_transformedVertices[(int)poly.GetIndex(i)].GetY());
-					LineTo(dc, (int)_transformedVertices[poly.GetIndex(0)].GetX(), (int)_transformedVertices[(int)poly.GetIndex(0)].GetY());
-				}
+				LineTo(dc, (int)transformedVertices[poly.GetIndex(1)].GetX(), (int)transformedVertices[(int)poly.GetIndex(1)].GetY());// Create a line from the current position to the second vertex in this polygon
+				LineTo(dc, (int)transformedVertices[poly.GetIndex(2)].GetX(), (int)transformedVertices[(int)poly.GetIndex(2)].GetY());// Create a line from the current position to the last vertex in this polygon
+				LineTo(dc, (int)transformedVertices[poly.GetIndex(0)].GetX(), (int)transformedVertices[(int)poly.GetIndex(0)].GetY());// Create a line from the current position to the first vertex in this polygon
+
 			}
 			SelectPen(dc, hOldPen);
-			DeleteObject(hPen);
+			DeleteObject(hPen); //Gets rid of the pen, to allow a different colour to be used per each polygon, if required
+
+			index++;
 		}
 
-		index++;
-		
 	}
-
-	
-
 }
+
 void Rasteriser::DrawSolidFlat(HDC dc)
 {
-	/**/
-
-	
 	vector<Polygon3D> polygons = _model.GetPolygons();
 	vector<Vertex> _transformedVertices = _model.GetVertices();
 	int index = 0;
 	for (Polygon3D poly : polygons)
 	{
-		bool culling = polygons[index].GetCulling();
-		if (culling == false)
+		if (poly.GetCulling() == false)
 		{
 			HPEN hPen = CreatePen(PS_SOLID, 2, RGB(poly.GetColour(0), poly.GetColour(1), poly.GetColour(2)));
 			HPEN hOldPen = SelectPen(dc, hPen);
+			//Fills The Polygons With The Colour Specified
 			HBRUSH hBrush = CreateSolidBrush(RGB(poly.GetColour(0), poly.GetColour(1), poly.GetColour(2)));
 			HBRUSH hOldBrush = SelectBrush(dc, hBrush);
 			POINT points[3];
 			for (int i = 0; i < 3; i++)
 			{
+				// Converts the 
 				points[i] = POINT({
-					(int)_transformedVertices[poly.GetIndex(i)].GetX(),(int)_transformedVertices[poly.GetIndex(i)].GetY(),
+					(int)_transformedVertices[poly.GetIndex(i)].GetX(),(int)_transformedVertices[poly.GetIndex(i)].GetY()
 					});
 			}
 
-			Polygon(dc, points, 3);
+			Polygon(dc, points, 3); //Generates The Polygon
 			SelectBrush(dc, hOldBrush);
 			DeleteObject(hBrush);
 			SelectPen(dc, hOldPen);
 			DeleteObject(hPen);
-			
+
 		}
-		
+
 		index++;
 	}
-	
-
-	/**/
 }
-void Rasteriser::MyDrawSolidFlat(HDC dc)
+
+void Rasteriser::DrawString(const Bitmap& bitmap, const LPCTSTR text, const int x, const int y)
 {
-	vector<Polygon3D> polygons = _model.GetPolygons();
-	vector<Vertex> _transformedVertices = _model.GetVertices();
-	int index = 0;
-	for (Polygon3D poly : polygons)
-	{
-		bool culling = polygons[index].GetCulling();
-		if (culling == false)
-		{
-			FillPolygonFlat(dc, _transformedVertices[poly.GetIndex(0)], _transformedVertices[poly.GetIndex(1)], _transformedVertices[poly.GetIndex(2)], poly.GetColour(0), poly.GetColour(1), poly.GetColour(2));
-		}
-		index++;
-	}
+	HDC hdc = bitmap.GetDC();
+	HFONT hFont, hOldFont;
 
+	// Retrieve a handle to the variable stock font.  
+	hFont = hFont = CreateFont(48, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+		CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Myfont"));
+
+	// Select the variable stock font into the specified device context. 
+	if (hOldFont = (HFONT)SelectObject(hdc, hFont))
+	{
+		SetTextColor(hdc, RGB(255, 255, 255));
+		SetBkColor(hdc, RGB(0, 0, 0));
+
+		// Display the text string.  
+		TextOut(hdc, x, y, text, lstrlen(text));
+
+		// Restore the original font.        
+		SelectObject(hdc, hOldFont);
+	}
+	DeleteObject(hFont);
 }
-void Rasteriser::FillPolygonFlat(HDC dc, Vertex v1, Vertex v2, Vertex v3, int red, int green, int blue)
-{
-	Triangle(v1, v2, v3, red, green, blue).DrawBarycentric(dc);
-}
-
-void Rasteriser::TransformationControls()
-{
-	if (GetKeyState(0x41) & 0x8000)
-	{
-		_x -= 0.5f;
-	}
-	else if (GetKeyState(0x44) & 0x8000)
-	{
-		_x += 0.5f;
-	}
-	else if (GetKeyState(0x57) & 0x8000)
-	{
-		_y += 0.5f;
-	}
-	else if (GetKeyState(0x53) & 0x8000)
-	{
-		_y -= 0.5f;
-	}
-	else if (GetKeyState(0x46) & 0x8000)
-	{
-		_z += 0.5f;
-	}
-	else if (GetKeyState(0x47) & 0x8000)
-	{
-		_z -= 0.5f;
-	}
-
-	else if (GetKeyState(0x5A) & 0x8000)
-	{
-		_xScale += 0.5f;
-		_yScale += 0.5f;
-	}
-	else if (GetKeyState(0x58) & 0x8000)
-	{
-		
-	}
-	else if (GetKeyState(0x51) & 0x8000)
-	{
-		_xRot++;
-	}
-	else if (GetKeyState(0x45) & 0x8000)
-	{
-		_xRot--;
-	}
-	else if (GetKeyState(0x52) & 0x8000)
-	{
-		_yRot++;
-
-	}
-	else if (GetKeyState(0x54) & 0x8000)
-	{
-		_yRot--;
-
-	}
-	else if (GetKeyState(0x59) & 0x8000)
-	{
-		_zRot++;
-
-	}
-	else if (GetKeyState(0x55) & 0x8000)
-	{
-		_zRot--;
-
-	}
-
-	
-}
-void Rasteriser::CameraControls()
-{
-	_camX = 0, _camY = 0, _camZ = 0;
-	if (GetKeyState(VK_LEFT) & 0x8000)
-	{
-
-		_camX += 0.5f;
-	}
-	else if (GetKeyState(VK_RIGHT) & 0x8000)
-	{
-		_camX -= 0.5f;
-	}
-	else if (GetKeyState(VK_UP) & 0x8000)
-	{
-		_camY -= 0.5f;
-	}
-	else if (GetKeyState(VK_DOWN) & 0x8000)
-	{
-		_camY += 0.5f;
-
-	}
-	else if (GetKeyState(VK_OEM_PLUS) & 0x8000)
-	{
-		_camZ += 0.5f;
-	}
-	else if (GetKeyState(VK_OEM_MINUS) & 0x8000)
-	{
-		_camZ -= 0.5f;
-	};
-	_cam = Camera(0, 0, 0,
-		Matrix({
-		   1,0,0,_camX,
-		   0,1,0,_camY,
-		   0,0,1,_camZ,
-		   0,0,0,1
-			}) * _cam.GetPos()
-	);
-}
-
-
-

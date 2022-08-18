@@ -4,28 +4,32 @@ DirectionalLighting::DirectionalLighting()
 {
 }
 
-DirectionalLighting::DirectionalLighting(Vector3D direction, int redL, int greenL, int blueL)
+DirectionalLighting::DirectionalLighting(const Vector3D direction, const int redL, const int greenL, const int blueL)
 {
 	SetDirection(direction);
 	SetL(redL, greenL, blueL);
 }
 
-Vector3D DirectionalLighting::GetDirection()
+DirectionalLighting::~DirectionalLighting()
+{
+}
+
+Vector3D DirectionalLighting::GetDirection() const
 {
 	return _direction;
 }
 
-int DirectionalLighting::GetL(int index)
+int DirectionalLighting::GetL(const int index) const
 {
 	return _l[index];
 }
 
-void DirectionalLighting::SetDirection(Vector3D direction)
+void DirectionalLighting::SetDirection(const Vector3D direction)
 {
 	_direction = direction;
 }
 
-void DirectionalLighting::SetL(int redL, int greenL, int blueL)
+void DirectionalLighting::SetL(const int redL, const int greenL, const int blueL)
 {
 	_l[0] = redL;
 	_l[1] = greenL;

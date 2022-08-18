@@ -1,7 +1,8 @@
 #pragma once
 #include "Vertex.h"
 #include "Matrix.h"
-#define PI 3.14159265f
+#include <cmath>
+#define PI 3.14159265f //Defined PI as a global variable to use in viewing calculations
 class Camera
 {
 public:
@@ -11,13 +12,12 @@ public:
 
 	Matrix getTransformation();
 	Vertex GetPos();
-	void SetPos(Vertex pos);
+	void SetPos(const Vertex& pos);
 private:
-	float _xRot;
-	float _yRot;
-	float _zRot;
 	Vertex _pos;
 	Matrix _viewMatrix;
 
 };
+
+
 

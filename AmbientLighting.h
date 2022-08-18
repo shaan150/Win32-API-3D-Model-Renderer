@@ -11,4 +11,3 @@ public:
 private:
 	int _reflection[3] = { 0, 0, 0 };
 };
-

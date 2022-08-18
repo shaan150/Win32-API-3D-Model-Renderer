@@ -24,3 +24,4 @@ private:
 	float _attenuationCoefficients[3] = { 0, 0, 0 };
 };
 
+

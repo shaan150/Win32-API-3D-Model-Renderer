@@ -1,13 +1,10 @@
 #include "Camera.h"
-#include <cmath>
 
 Camera::Camera()
 {
-	_xRot = 0.0f;
-	_yRot = 0.0f;
-	_zRot = 0.0f;
-}
 
+}
+// Calculates the x, z and y rotations of the camera by utilising 3D rotation matrices, and calculate the position via a matrix
 Camera::Camera(float xRot, float yRot, float zRot, const Vertex& pos)
 {
 	Matrix viewingTransf = Matrix(
@@ -40,10 +37,7 @@ Camera::Camera(float xRot, float yRot, float zRot, const Vertex& pos)
 		});
 
 	_viewMatrix = viewingTransf;
-	_xRot = xRot;
-	_yRot = yRot;
-	_zRot = zRot;
-	_pos = pos;
+	SetPos(pos);
 }
 
 Camera::~Camera()
@@ -60,7 +54,7 @@ Vertex Camera::GetPos()
 	return _pos;
 }
 
-void Camera::SetPos(Vertex pos)
+void Camera::SetPos(const Vertex& pos)
 {
 	_pos = pos;
 }

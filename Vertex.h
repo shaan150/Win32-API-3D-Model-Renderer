@@ -1,5 +1,5 @@
 #pragma once
-#include "ocidl.h"
+
 #include "Vector3D.h"
 using namespace std;
 class Vertex
@@ -9,7 +9,7 @@ public:
 	Vertex(float x, float y, float z);
 	Vertex(const Vertex& other);
 
-	// Accessors
+	// Accessors To Retrieve Or Set The X, Y, W Or Z Private Variables
 	float GetX() const;
 	void SetX(const float x);
 	float GetY() const;
@@ -18,12 +18,6 @@ public:
 	void SetZ(const float w);
 	float GetW() const;
 	void SetW(const float w);
-	Vector3D GetNormal();
-	void SetNormal(Vector3D normal);
-	int GetCount();
-	void SetCount(int contCount);
-	int GetColour(int index);
-	void SetColours(int red, int green, int blue);
 
 	Vertex DehomogeniseVertex();
 	
@@ -42,8 +36,5 @@ private:
 	float _y;
 	float _z;
 	float _w;
-	Vector3D _normal;
-	int _contCount;
-	int _colours[3] = { 0,0,0 };
 };
 

@@ -7,7 +7,6 @@ Vertex::Vertex()
 	SetY(0.0f);
 	SetW(0.0f);
 	SetZ(0.0f);
-	SetCount(0);
 }
 
 Vertex::Vertex(float x, float y, float z)
@@ -16,7 +15,6 @@ Vertex::Vertex(float x, float y, float z)
 	SetY(y);
 	SetW(1.0f);
 	SetZ(z);
-	SetCount(0);
 }
 
 Vertex::Vertex(const Vertex & other)
@@ -67,45 +65,14 @@ void Vertex::SetW(const float w)
 	_w = w;
 }
 
-Vector3D Vertex::GetNormal()
-{
-	return _normal;
-}
-
-void Vertex::SetNormal(Vector3D normal)
-{
-	_normal = normal;
-}
-
-int Vertex::GetCount()
-{
-	return _contCount;
-}
-
-void Vertex::SetCount(int contCount)
-{
-	_contCount = contCount;
-}
-
-int Vertex::GetColour(int index)
-{
-	return _colours[index];
-}
-
-void Vertex::SetColours(int red, int green, int blue)
-{
-	_colours[0] = red;
-	_colours[1] = green;
-	_colours[2] = blue;
-}
-
+//Sets _x, _y, _w and _z variables to be themselves dividing by _w, and returns the values as a Vertex
 Vertex Vertex::DehomogeniseVertex()
 {
 	SetX(_x / _w);
 	SetY(_y / _w);
 	SetW(_w / _w);
 	SetZ(_z / _w);
-	return  Vertex(GetX(),GetY(), GetZ());
+	return Vertex(GetX(),GetY(), GetZ());
 }
 
 Vertex& Vertex::operator=(const Vertex& rhs)
@@ -141,10 +108,11 @@ const Vertex Vertex::operator+(const Vertex& rhs) const
 	return Vertex(_x + rhs.GetX(), _y + rhs.GetY(), _z + rhs.GetZ());
 }
 
+
 const Vector3D Vertex::operator-(const Vertex& rhs) const
 {
 	return Vector3D(
-		_x - rhs.GetX(), 
+		_x - rhs.GetX(),
 		_y - rhs.GetY(),
 		_z - rhs.GetZ());
 }
